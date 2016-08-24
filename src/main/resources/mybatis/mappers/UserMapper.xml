@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.UserMapper">
+	<resultMap type="pojo.User" id="UserRM">
+	<id property="userId" column="user_id"/>
+	<result property="deptId" column="dept_id"/>
+	<result property="userName" column="username"/>
+	<result property="passWord" column="password"/>
+	<result property="state" column="state"/>
+	<result property="createBy" column="cteate_by"/>
+	<result property="creatDept" column="create_dept"/>
+	<result property="updateBy" column="update_by"/>
+	<result property="createTime" column="create_time"/>
+	<result property="updateTime" column="update_time"/>
+	
+	<association property="dept" javaType="pojo.Dept">
+		<id property="deptId" column="dept_id"/>
+		<result property="deptName" column="DEPT_NAME"/>
+	</association>
+	
+	<association property="userInfo" javaType="pojo.UserInfo">
+		<id property="userInfoId" column="USER_INFO_ID"/>
+		<result property="name" column="NAME"/>
+		<result property="cardNo" column="CARD_NO"/>
+		<result property="managerId" column="MANAGER_ID"/>
+		<result property="joinDate" column="JOIN_DATE"/>
+		<result property="salary" column="SALARY"/>
+		<result property="birthday" column="BIRTHDAY"/>
+		<result property="gender" column="GENDER"/>
+		<result property="station" column="STATION"/>
+		<result property="telephone" column="TELEPHONE"/>
+		<result property="userLevel" column="USER_LEVEL"/>
+		<result property="remark" column="REMARK"/>
+		<result property="orderNo" column="ORDER_NO"/>
+		
+		<association property="manager" javaType="pojo.UserInfo">
+		<id property="userInfoId" column="mid"/>
+		<result property="name" column="mname"/>
+		</association>
+		
+	</association>
+	
+</resultMap>
+
+<select id="findAll" resultMap="UserRM" >
+select * from user_p left join dept_p on user_p.dept_id=dept_p.dept_id
+left join user_info_p on user_p.user_id=user_info_p.user_info_id
+left join (select user_info_id as mid ,name as mname  from user_info_p)manager on user_info_p.manager_id=manager.mid
+</select>
+
+<insert id="insertUser" parameterType="pojo.User">
+insert into user_p (user_id,dept_id,username,password,state,CREATE_TIME,UPDATE_TIME) 
+values(#{userId},#{deptId},#{userName},#{passWord},#{state},#{createTime},#{updateTime})
+</insert>
+
+<insert id="insertUserInfo" parameterType="pojo.UserInfo">
+insert into user_info_p (USER_INFO_ID,NAME,CARD_NO,MANAGER_ID,JOIN_DATE,SALARY,BIRTHDAY,STATION,TELEPHONE,REMARK,CREATE_TIME,UPDATE_TIME) 
+values(#{userInfoId},#{name},#{cardNo},#{managerId},#{joinDate},#{salary},#{birthday},#{station},#{telephone},#{remark},#{createTime},#{updateTime})
+</insert>
+
+<delete id="deleteUser" parameterType="string">
+delete from user_p where user_id = #{userId}
+</delete>
+
+<delete id="deleteUserInfo"  parameterType="string">
+delete from user_info_p where user_info_id = #{userId}
+</delete>
+
+<select id="findUserByUsername" parameterType="string" resultType="pojo.User">
+select * from user_p where username = #{username}
+</select>
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+				         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+				         http://www.springframework.org/schema/context
+				         http://www.springframework.org/schema/context/spring-context-3.0.xsd
+				         http://www.springframework.org/schema/tx
+				         http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+				         http://www.springframework.org/schema/aop
+				         http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+				         ">
+<!--1.shiro和spring进行整合后，shiro的组件需要以bean的方式交给spring来管理，即shiro的bean的生命周期托付给bean，先声明这个类  -->			         
+<bean id="lifecycleBeanProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" ></bean>
+
+<!--2.spring是通过代理，对lifecycle进行控制的  -->
+<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" 
+depends-on="lifecycleBeanProcessor">
+	<property name="proxyTargetClass" value="true"></property>
+</bean>
+
+<!--3.虽然lifeCycle是基于接口的，理应被jdk代理，但是shiro的设计者要求必须被cglib代理，要不然shiro的很多组件不能被生成， 所以需要强制开启cglib代理  -->
+<aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
+
+<!--4.配置shiro安全管理器
+这个安全管理器，是shiro框架的核心。提供了：登陆认证，授权管理，会话管理，加密
+虽然shiro可以做以上的功能模块，但是，比如针对登陆认证，授权管理。 我们需要向shiro提供相应的认证资料
+这个资料指的是：用户的用户名，密码，所有权限等，这些资料，都是需要程序员自己来写的，一般说我们在AuthRealm这个类来写的，并且AuthRealm需要继承：AuthorizingRealm这个类，shiro的安全管理器才能认识
+  -->
+<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+	<!--realm这个名字写死，是一个关键属性  -->
+	<property name="realm" ref="authRealm"></property>
+</bean>
+
+<!--这个bean为自己写的 提供认证资料  -->
+<bean id="authRealm" class="shiro.AuthRealm">
+	<!--credentialsMatcher是一个关键属性，定死  -->
+	<property name="credentialsMatcher" ref="authEncrypt"></property>
+</bean>
+
+<!--5.配置shiro的授权管理器，这个类的作用就是用于shiro的授权管理  -->
+<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+	<!--注入安全管理器  -->
+	<property name="securityManager" ref="securityManager"></property>
+</bean>
+
+<!--6.配置shiro的Filter
+shiro的Filter，并不直接在web.xml文件里进行配置，而是当做一个bean交给spring容器来管理
+这么做的好处在于：
+1.如果shiroFilter想用spring容器里的某一个bean，可以直接在spring的配置文件中指定，从而注入进来
+如果配置在web.xml里的话，这样的需求就实现不了
+  -->
+<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+	<!--注入安全管理器  -->
+	<property name="securityManager" ref="securityManager"></property>
+	<!--loginUrl指定的登录的首页  -->
+	<property name="loginUrl" value="/login.jsp"></property>
+	
+	<property name="filterChainDefinitions">
+		<value>
+			<!--需要注意：拦截或放行是有顺序的要求的，一般把拦截所有资源的配置，放在最后，某些单放行的资源配置之前
+				之所有有顺序的要求：一是因为shiro是利用FilterChain的机制来处理的
+							   二是因为在<value>标签里的配置数据，最后会形成一个有序的List集合	
+			 -->
+			 /staticfile/**=anon<!--放行静态资源  -->
+			 /validate/doLogin=anon<!--放行登陆请求路径  -->
+			 /**=authc<!--拦截其它路径  -->		
+		</value>
+	</property>
+</bean>
+
+<bean id="authEncrypt" class="shiro.AuthCredential"></bean>	
+
+</beans>
+
+

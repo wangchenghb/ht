@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.ModuleMapper">
+
+<select id="findall" resultType="pojo.Module">
+select * from module_p
+</select>
+
+<insert id="insert" parameterType="pojo.Module">
+insert into module_p (MODULE_ID,PARENT_ID,NAME,CTYPE,STATE,ORDER_NO,CREATE_TIME,UPDATE_TIME) 
+values(#{moduleId},#{parentId},#{name},#{ctype},#{state},#{orderNo},#{createTime},#{updateTime})
+</insert>
+
+<delete id="delete" parameterType="string">
+delete from module_p where module_id = #{moduleId} 
+</delete>
+
+
+</mapper> 

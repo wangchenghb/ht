@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.DeptMapper">
+
+<resultMap type="pojo.Dept" id="DeptRM">
+	<id property="deptId" column="dept_id"/>
+	<result property="parentId" column="parent_id"/>
+	<result property="deptName" column="dept_name"/>
+	<result property="orderNo" column="order_no"/>
+	<result property="state" column="state"/>
+	<result property="createBy" column="create_by"/>
+	<result property="creatDept" column="create_dept"/>
+	<result property="updateBy" column="update_by"/>
+	<result property="creatTime" column="creat_time"/>
+	<result property="updateTime" column="update_time"/>
+	
+	<association property="parent" javaType="pojo.Dept">
+		<id property="deptId" column="pid"/>
+		<result property="deptName" column="pname"/>
+	</association>
+</resultMap>
+
+<select id="findAll" resultMap="DeptRM">
+	select * from dept_p  left join 
+(select dept_p.dept_id as pid,dept_p.dept_name as pname from dept_p)parent on dept_p.parent_id=parent.pid
+</select>
+
+<insert id="insert" parameterType="pojo.Dept">
+	insert into dept_p (dept_id,parent_id,dept_name,state,create_time,update_time) 
+	values(#{deptId},#{parentId},#{deptName},#{state},#{createTime},#{updateTime}) 
+</insert>
+
+<delete id="deleteOne" parameterType="string">
+delete from dept_p where dept_id=#{deptId}
+</delete>
+
+<select id="findById" parameterType="string" resultMap="DeptRM">
+select * from dept_p where dept_id=#{deptId}
+</select>
+
+<update id="update" parameterType="pojo.Dept" >
+update dept_p
+<set>
+<if test="deptName!=null">dept_name=#{deptName},</if>
+<if test="parentId!=null">parent_id=#{parentId},</if>
+</set>
+where dept_id=#{deptId}
+</update>
+
+<delete id="delete" parameterType="string">
+delete from dept_p where dept_id in
+<foreach collection="array" open="(" close=")" separator="," item="id">
+#{id}
+</foreach>
+
+</delete>
+
+
+</mapper> 

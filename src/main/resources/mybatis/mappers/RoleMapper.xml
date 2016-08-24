@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.RoleMapper">
+
+<select id="findAll" resultType="pojo.Role">
+select * from role_p
+</select>
+
+<insert id="insert" parameterType="pojo.Role">
+insert into role_p (ROLE_ID,NAME,REMARK,ORDER_NO,CREATE_TIME,UPDATE_TIME)
+values(#{roleId},#{name},#{remark},#{orderNo},#{createTime},#{updateTime})
+</insert>
+
+<delete id="deleteRoleById" parameterType="string">
+delete from role_p where role_id = #{roleId}
+</delete>
+
+<delete id="deleteModuleById" parameterType="string">
+delete from role_module_p where role_id = #{roleId}
+</delete>
+
+<select id="findModuleByRoleId" parameterType="string" resultType="string">
+select * from role_module_p where role_id = #{roleId}
+</select>
+
+<insert id="insertRoleAndModule" parameterType="map">
+insert into role_module_p (ROLE_ID,MODULE_ID) values(#{roleId},#{moduleId})
+</insert>
+
+<select id="findRoleById" parameterType="string" resultType="pojo.Role">
+select * from role_p where role_id = #{roleId}
+</select>
+
+<update id="updateRole" parameterType="pojo.Role">
+update  role_p set NAME=#{name},REMARK=#{remark},CREATE_TIME=#{createTime},UPDATE_TIME=#{updateTime} where ROLE_ID=#{roleId}
+</update>
+
+<delete id="deleteByRoleAndModuleId" parameterType="map">
+delete from role_module_p where role_id = #{roleId} and module_id = #{moduleId}
+</delete>
+
+</mapper> 

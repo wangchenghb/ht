@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+<!--配置说明：Mybatis的配置是有顺序要求的
+(properties?,settings?,typeAliases?,typeHandlers?,
+objectFactory?,objectWrapperFactory?,plugins?,
+environments?,databaseIdProvider?,mappers?)
+-->
+
+<!--配置驼峰映射规则  -->
+<settings>
+	<!--如果驼蜂映射规则的名字记不住，就是Configuration 这个类的存储Mybatis所有配置项  -->
+	<setting name="mapUnderscoreToCamelCase" value="true"/>
+</settings>
+
+<!-- 配置包别名机制  --> 
+<!-- <typeAliases> -->
+<!-- 配置完包别名之后，这个包下，所有的类，都不用写全路径名，只写类名即可，比如Dept  --> 
+<!-- 	<package name="pojo"/> -->
+<!-- </typeAliases> -->
+
+</configuration>
